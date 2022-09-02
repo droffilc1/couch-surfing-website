@@ -1,4 +1,5 @@
 import { LoyaltyUser } from "./enums"
+import { Review } from "./interfaces"
 
 const reviewTotalDisplay = document.querySelector('#reviews')
 const returningUserDisplay = document.querySelector('#returning-user')
@@ -17,7 +18,7 @@ export function populateUser(isReturning : boolean, userName: string ) {
     userNameDisplay!.innerHTML = userName
 }
 
-export function showDetails(authorityStatus: boolean | Permissions, element : HTMLDivElement, price: number) {
+export function showDetails(authorityStatus: Permissions | boolean, element : HTMLDivElement, price: number) {
     if (authorityStatus) {
         const priceDisplay = document.createElement('div')
         priceDisplay.innerHTML = price.toString() + '/night'
@@ -29,4 +30,9 @@ export function makeMultiple(value: number): string {
     if (value > 1 || value == 0 ) {
         return 's'
     } else return ''
+}
+
+export function getTopTwoReviews(reviews: Review[]) : Review[]  {
+    const sortedReviews = reviews.sort((a, b) => b.stars - a.stars)
+    return sortedReviews.slice(0,2)
 }

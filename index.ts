@@ -1,14 +1,23 @@
-import { showReviewTotal, populateUser, showDetails } from './utilis';
+import {
+  showReviewTotal,
+  populateUser,
+  showDetails,
+  getTopTwoReviews,
+} from './utilis';
 import { Permissions, LoyaltyUser } from './enums';
-import { Price, Country } from './types'
+import { Review, Property } from './interfaces';
+import MainProperty from './classes';
 
 const propertyContainer = document.querySelector('.properties');
+const reviewContainer = document.querySelector('.reviews');
+const container = document.querySelector('.container');
+const button = document.querySelector('button');
 const footer = document.querySelector('.footer');
 
-let isLoggedIn: boolean
+let isLoggedIn: boolean;
 
 // Reviews
-const reviews: any[] = [    
+const reviews: Review[] = [
   {
     name: 'Sheia',
     stars: 5,
@@ -26,7 +35,6 @@ const reviews: any[] = [
     stars: 4,
     loyaltyUser: LoyaltyUser.SILVER_USER,
     date: '27-03-2021',
-    description: 'Great hosts, location was a bit further than said'
   },
 ];
 
@@ -40,21 +48,8 @@ const you = {
   stayedAt: ['florida-home', 'oman-flat', 'tokyo-bungalow'],
 };
 
-
 //Array of Properties
-const properties: {
-  image: string;
-  title: string;
-  price: number;
-  location: {
-    firstLine: string;
-    city: string;
-    code: number;
-    country: Country;
-  };
-  contact: [number, string];
-  isAvailable: boolean;
-}[] = [
+const properties: Property[] = [
   {
     image: 'images/colombia-property.jpg',
     title: 'Colombian Shack',
@@ -71,7 +66,7 @@ const properties: {
   {
     image: 'images/poland-property.jpg',
     title: 'Polish Cottage',
-    price: 34,
+    price: 30,
     location: {
       firstLine: 'no 23',
       city: 'Gdansk',
@@ -84,15 +79,28 @@ const properties: {
   {
     image: 'images/london-property.jpg',
     title: 'London Flat',
-    price: 23,
+    price: 25,
     location: {
       firstLine: 'flat 15',
       city: 'London',
-      code: 35433,
+      code: 'SW4 5XW',
       country: 'United Kingdom',
     },
     contact: [+1123495082908, 'andyluger@aol.com'],
     isAvailable: true,
+  },
+  {
+    image: 'images/malaysia-property.jpg',
+    title: 'Malia Hotel',
+    price: 35,
+    location: {
+      firstLine: 'Room 4',
+      city: 'Malia',
+      code: '45334',
+      country: 'Malaysia',
+    },
+    contact: [+60349822083, 'lee34@gmail.com'],
+    isAvailable: false,
   },
 ];
 
@@ -100,7 +108,6 @@ const properties: {
 showReviewTotal(reviews.length, reviews[0].name, reviews[0].loyaltyUser);
 
 populateUser(you.isReturning, you.firstName);
-
 
 // Add properties
 
@@ -111,10 +118,44 @@ for (let i = 0; i < properties.length; i++) {
   const image = document.createElement('img');
   image.setAttribute('src', properties[i].image);
   card.appendChild(image);
+  showDetails(you.permissions, card, properties[i].price);
   propertyContainer!.appendChild(card);
-  showDetails(you.permissions, card, properties[i].price)
-  propertyContainer!.appendChild(card)
 }
+
+let count = 0;
+function addReviews(array: Review[]): void {
+  if (!count) {
+    count++;
+    const topTwo = getTopTwoReviews(array);
+    for (let i = 0; i < topTwo.length; i++) {
+      const card = document.createElement('div');
+      card.classList.add('review-card');
+      card.innerHTML = topTwo[i].stars + ' stars from ' + topTwo[i].name;
+      reviewContainer!.appendChild(card);
+    }
+    container!.removeChild(button!);
+  }
+}
+
+button!.addEventListener('click', () => addReviews(reviews));
+
+let yourMainProperty = new MainProperty(
+  'images/italian-property.jpg',
+  'Italian House',
+  [
+    {
+      name: 'Olive',
+      stars: 5,
+      loyaltyUser: LoyaltyUser.GOLD_USER,
+      date: '12-04-2021',
+    },
+  ]
+);
+
+const mainImageContainer = document.querySelector('.main-image');
+const image = document.createElement('img');
+image.setAttribute('src', yourMainProperty.src);
+mainImageContainer!.appendChild(image);
 
 let currentLocation: [string, string, number] = ['Nairobi', '16:30', 19];
 
